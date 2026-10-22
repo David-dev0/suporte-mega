@@ -1,0 +1,1564 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Suporte Mega</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* ── Layout: sidebar nav + main content, cards-based dashboard ── */
+:root {
+  /* Colors */
+  --bg:        #0f1117;
+  --bg2:       #181c27;
+  --bg3:       #1e2334;
+  --border:    #2a2f42;
+  --fg:        #e8eaf0;
+  --fg2:       #9098b1;
+  --fg3:       #5a6281;
+  --accent:    #4f79ff;
+  --accent2:   #3a5ce0;
+  --success:   #22c55e;
+  --warning:   #f59e0b;
+  --danger:    #ef4444;
+  --info:      #38bdf8;
+  /* Type */
+  --font:      'Inter', system-ui, sans-serif;
+  --mono:      'JetBrains Mono', monospace;
+  /* Sizing */
+  --sidebar-w: 220px;
+  --radius:    10px;
+  --radius-sm: 6px;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:      #f0f2f8;
+    --bg2:     #ffffff;
+    --bg3:     #e8eaf2;
+    --border:  #d4d8e8;
+    --fg:      #1a1e30;
+    --fg2:     #4a5070;
+    --fg3:     #8890a8;
+    --accent:  #3a5ce0;
+    --accent2: #2a4acc;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:      #f0f2f8;
+  --bg2:     #ffffff;
+  --bg3:     #e8eaf2;
+  --border:  #d4d8e8;
+  --fg:      #1a1e30;
+  --fg2:     #4a5070;
+  --fg3:     #8890a8;
+  --accent:  #3a5ce0;
+  --accent2: #2a4acc;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-left: max(0px, env(safe-area-inset-left, 0px));
+  padding-right: max(0px, env(safe-area-inset-right, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── App shell ── */
+.app { display: flex; min-height: 100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform .25s;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .brand { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .04em; text-transform: uppercase; }
+.sidebar-logo .sub   { font-size: 11px; color: var(--fg3); margin-top: 2px; }
+
+.nav-section { padding: 12px 8px 4px; }
+.nav-label { font-size: 10px; font-weight: 600; color: var(--fg3); letter-spacing: .08em; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  font-size: 13.5px; font-weight: 500; color: var(--fg2);
+  cursor: pointer; transition: background .15s, color .15s;
+  border: none; background: none; width: 100%; text-align: left;
+  text-decoration: none;
+}
+.nav-item:hover  { background: var(--bg3); color: var(--fg); }
+.nav-item.active { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto; font-size: 10px; font-weight: 700;
+  background: var(--accent); color: #fff;
+  padding: 1px 6px; border-radius: 99px; min-width: 18px; text-align: center;
+}
+
+.sidebar-footer { margin-top: auto; padding: 12px; border-top: 1px solid var(--border); }
+.theme-toggle {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--fg3); cursor: pointer;
+  background: none; border: none; width: 100%; padding: 6px 4px;
+}
+
+/* ── Main content ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-title { font-size: 15px; font-weight: 600; flex: 1; }
+.hamburger {
+  display: none; background: none; border: none; cursor: pointer; padding: 4px;
+}
+
+.page { display: none; flex-direction: column; gap: 24px; padding: 24px; flex: 1; }
+.page.active { display: flex; }
+
+/* ── Stats row ── */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.stat-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px;
+}
+.stat-label { font-size: 11px; color: var(--fg3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.stat-value { font-size: 28px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.stat-sub   { font-size: 11px; color: var(--fg3); margin-top: 2px; }
+.stat-card.accent  .stat-value { color: var(--accent); }
+.stat-card.warning .stat-value { color: var(--warning); }
+.stat-card.danger  .stat-value { color: var(--danger); }
+.stat-card.success .stat-value { color: var(--success); }
+
+/* ── Section header ── */
+.section-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.section-title  { font-size: 15px; font-weight: 600; flex: 1; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; cursor: pointer; border: none;
+  transition: opacity .15s, background .15s;
+}
+.btn:hover { opacity: .88; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-ghost   { background: var(--bg3); color: var(--fg); border: 1px solid var(--border); }
+.btn-danger  { background: var(--danger); color: #fff; }
+.btn-sm      { padding: 5px 10px; font-size: 12px; }
+.btn svg     { width: 14px; height: 14px; }
+
+/* ── Filters bar ── */
+.filters-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 14px;
+}
+.filter-input, .filter-select {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--fg);
+  font-family: var(--font); font-size: 13px;
+  padding: 6px 10px; outline: none;
+  transition: border-color .15s;
+}
+.filter-input  { flex: 1; min-width: 180px; }
+.filter-select { min-width: 120px; }
+.filter-input:focus, .filter-select:focus  { border-color: var(--accent); }
+.filter-input::placeholder { color: var(--fg3); }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  text-align: left; padding: 10px 14px;
+  background: var(--bg3); color: var(--fg3);
+  font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg3); }
+tbody td { padding: 10px 14px; vertical-align: middle; max-width: 260px; }
+tbody td.wrap { white-space: normal; word-break: break-word; }
+
+/* ── Badges / chips ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 99px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.badge-aberto    { background: color-mix(in srgb, var(--accent)  18%, transparent); color: var(--accent); }
+.badge-andamento { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+.badge-fechado   { background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
+.badge-urgente   { background: color-mix(in srgb, var(--danger)  18%, transparent); color: var(--danger); }
+.badge-alta      { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+.badge-media     { background: color-mix(in srgb, var(--info)    18%, transparent); color: var(--info); }
+.badge-baixa     { background: color-mix(in srgb, var(--fg3)     18%, transparent); color: var(--fg3); }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.65);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; padding: 16px;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; width: 100%; max-width: 560px;
+  max-height: 90vh; overflow-y: auto;
+  transform: translateY(12px); transition: transform .2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+  padding: 20px 24px 0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-close {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 4px 8px;
+  cursor: pointer; color: var(--fg2); font-size: 12px;
+}
+.modal-body { padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 14px; }
+
+/* ── Form elements ── */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--fg2); letter-spacing: .02em; }
+.field input, .field select, .field textarea {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--fg);
+  font-family: var(--font); font-size: 13.5px; padding: 9px 12px;
+  outline: none; transition: border-color .15s; width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+.field textarea { resize: vertical; min-height: 80px; }
+.field input::placeholder, .field textarea::placeholder { color: var(--fg3); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── Detail panel ── */
+.detail-header { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.detail-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.detail-body { background: var(--bg3); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 13.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.detail-field { background: var(--bg3); border-radius: var(--radius-sm); padding: 10px 14px; }
+.detail-field-label { font-size: 10px; font-weight: 600; color: var(--fg3); letter-spacing: .06em; text-transform: uppercase; }
+.detail-field-val { font-size: 13px; margin-top: 2px; }
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center; padding: 48px 24px; color: var(--fg3);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.empty-state svg { opacity: .3; }
+.empty-state p { font-size: 14px; }
+
+/* ── Toast ── */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 16px;
+  font-size: 13px; display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+  animation: slideIn .2s ease;
+}
+.toast.ok   { border-left: 3px solid var(--success); }
+.toast.err  { border-left: 3px solid var(--danger); }
+.toast.info { border-left: 3px solid var(--accent); }
+@keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ── Loading / spinner ── */
+.spinner {
+  width: 18px; height: 18px; border: 2px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin .7s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-row { display: flex; align-items: center; gap: 10px; color: var(--fg3); font-size: 13px; padding: 24px; justify-content: center; }
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { transform: translateX(-220px); width: 220px; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .hamburger { display: flex; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .field-row { grid-template-columns: 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr; }
+  .page { padding: 16px; gap: 16px; }
+  .topbar { padding: 0 16px; }
+}
+
+/* ── Link for public form ── */
+.public-notice {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  font-size: 12.5px; color: var(--fg2); display: flex; gap: 8px; align-items: flex-start;
+}
+</style>
+
+<!-- App -->
+<div class="app">
+
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">🖥 Suporte TI</div>
+      <div class="sub">Mega Feirão dos Calçados</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Principal</div>
+      <button class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2V2zm0 7h5v5H2V9zm7-7h5v5H9V2zm0 7h5v5H9V9z"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-page="chamados" onclick="navigate('chamados')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12v10H2V2zm1 1v8h10V3H3zm1 2h8v1H4V5zm0 2h6v1H4V7z"/></svg>
+        Chamados
+        <span class="nav-badge" id="badge-abertos">0</span>
+      </button>
+      <button class="nav-item" data-page="novo" onclick="navigate('novo')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2zm0 1a5 5 0 1 0 0 10A5 5 0 0 0 8 3zm.5 2.5v2.5h2.5v1H8.5V11.5h-1V9H5V8h2.5V5.5h1z"/></svg>
+        Novo Chamado
+      </button>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Gestão</div>
+      <button class="nav-item" data-page="equipamentos" onclick="navigate('equipamentos')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v8H1V3zm1 1v6h12V4H2zm2 1h8v1H4V5zm0 2h5v1H4V7zm8 5v1H4v-1h8z"/></svg>
+        Equipamentos
+      </button>
+      <button class="nav-item" data-page="relatorios" onclick="navigate('relatorios')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 2h10v12H3V2zm1 1v10h8V3H4zm1 2h6v1H5V5zm0 2h6v1H5V7zm0 2h4v1H5V9z"/></svg>
+        Relatórios
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 1v12A6 6 0 0 1 8 2z"/></svg>
+        Alternar tema
+      </button>
+    </div>
+  </nav>
+
+  <!-- Overlay mobile -->
+  <div id="nav-overlay" onclick="closeSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99"></div>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect y="3" width="20" height="2" rx="1"/><rect y="9" width="20" height="2" rx="1"/><rect y="15" width="20" height="2" rx="1"/></svg>
+      </button>
+      <span class="topbar-title" id="topbar-title">Dashboard</span>
+      <div class="loading-indicator" id="loading-indicator" style="display:none">
+        <div class="spinner"></div>
+      </div>
+    </header>
+
+    <!-- ===== DASHBOARD ===== -->
+    <section class="page active" id="page-dashboard">
+      <div class="stats-row">
+        <div class="stat-card accent">
+          <div class="stat-label">Total Abertos</div>
+          <div class="stat-value" id="stat-abertos">–</div>
+          <div class="stat-sub">Aguardando atendimento</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">Em Andamento</div>
+          <div class="stat-value" id="stat-andamento">–</div>
+          <div class="stat-sub">Sendo tratados</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Urgentes</div>
+          <div class="stat-value" id="stat-urgentes">–</div>
+          <div class="stat-sub">Prioridade máxima</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Fechados (30d)</div>
+          <div class="stat-value" id="stat-fechados">–</div>
+          <div class="stat-sub">Resolvidos recentemente</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" id="dash-grid">
+        <!-- Recentes -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div class="section-header">
+            <span class="section-title">Chamados Recentes</span>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('chamados')">Ver todos</button>
+          </div>
+          <div id="recentes-list"><div class="loading-row"><div class="spinner"></div> Carregando…</div></div>
+        </div>
+        <!-- Por categoria -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div class="section-header"><span class="section-title">Por Categoria</span></div>
+          <div id="cat-chart"></div>
+        </div>
+      </div>
+
+      <div class="public-notice">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0;margin-top:1px"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm-.5 3.5h1V9h-1V5.5zm0 4.5h1v1h-1v-1z"/></svg>
+        <div><strong>Compartilhe este sistema</strong> com as lojas para que possam abrir chamados diretamente. Qualquer pessoa com o link pode criar um chamado via a aba <em>Novo Chamado</em>.</div>
+      </div>
+    </section>
+
+    <!-- ===== CHAMADOS ===== -->
+    <section class="page" id="page-chamados">
+      <div class="section-header">
+        <span class="section-title">Todos os Chamados</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="exportCSV()">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 2h7l3 3v9H3V2zm7 0v3h3M5 7h6M5 9h6M5 11h4"/></svg>
+            Exportar CSV
+          </button>
+          <button class="btn btn-primary" onclick="navigate('novo')">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2zm.5 3.5h-1V7.5H5.5v1H7.5V10.5h1V8.5H10.5v-1H8.5V5.5z"/></svg>
+            Novo Chamado
+          </button>
+        </div>
+      </div>
+
+      <div class="filters-bar">
+        <input class="filter-input" type="text" id="f-busca" placeholder="🔍 Buscar por loja, assunto, nome, série…" oninput="applyFilters()">
+        <select class="filter-select" id="f-status" onchange="applyFilters()">
+          <option value="">Status: Todos</option>
+          <option value="Aberto">Aberto</option>
+          <option value="Em Andamento">Em Andamento</option>
+          <option value="Fechado">Fechado</option>
+        </select>
+        <select class="filter-select" id="f-prioridade" onchange="applyFilters()">
+          <option value="">Prioridade: Todas</option>
+          <option value="Urgente">Urgente</option>
+          <option value="Alta">Alta</option>
+          <option value="Média">Média</option>
+          <option value="Baixa">Baixa</option>
+        </select>
+        <select class="filter-select" id="f-categoria" onchange="applyFilters()">
+          <option value="">Categoria: Todas</option>
+          <option value="Hardware">Hardware</option>
+          <option value="Software">Software</option>
+          <option value="Rede / Internet">Rede / Internet</option>
+          <option value="Impressora">Impressora</option>
+          <option value="PDV / Caixa">PDV / Caixa</option>
+          <option value="Câmera / CFTV">Câmera / CFTV</option>
+          <option value="Acesso / Senha">Acesso / Senha</option>
+          <option value="Outro">Outro</option>
+        </select>
+        <select class="filter-select" id="f-loja" onchange="applyFilters()">
+          <option value="">Loja: Todas</option>
+        </select>
+        <select class="filter-select" id="f-periodo" onchange="applyFilters()">
+          <option value="">Período: Todos</option>
+          <option value="7">Últimos 7 dias</option>
+          <option value="30">Últimos 30 dias</option>
+          <option value="90">Últimos 90 dias</option>
+          <option value="180">Últimos 6 meses</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearFilters()">✕ Limpar</button>
+        <span id="f-count" style="font-size:11px;color:var(--fg3);margin-left:4px"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="cursor:pointer;user-select:none" onclick="sortBy('id')"># <span id="sort-id"></span></th>
+              <th style="cursor:pointer;user-select:none" onclick="sortBy('criadoEm')">Data <span id="sort-criadoEm">▼</span></th>
+              <th style="cursor:pointer;user-select:none" onclick="sortBy('loja')">Loja <span id="sort-loja"></span></th>
+              <th>Solicitante</th>
+              <th style="cursor:pointer;user-select:none" onclick="sortBy('assunto')">Assunto <span id="sort-assunto"></span></th>
+              <th style="cursor:pointer;user-select:none" onclick="sortBy('categoria')">Categoria <span id="sort-categoria"></span></th>
+              <th style="cursor:pointer;user-select:none" onclick="sortBy('prioridade')">Prioridade <span id="sort-prioridade"></span></th>
+              <th style="cursor:pointer;user-select:none" onclick="sortBy('status')">Status <span id="sort-status"></span></th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="chamados-tbody">
+            <tr><td colspan="9"><div class="loading-row"><div class="spinner"></div> Carregando…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== NOVO CHAMADO ===== -->
+    <section class="page" id="page-novo">
+      <div style="max-width:580px;width:100%">
+        <div class="section-header" style="margin-bottom:4px">
+          <span class="section-title">Abrir Novo Chamado</span>
+        </div>
+        <p style="font-size:13px;color:var(--fg3);margin-bottom:20px">Preencha o formulário com o máximo de detalhes para agilizar o atendimento.</p>
+
+        <form id="form-novo" onsubmit="submitChamado(event)" style="display:flex;flex-direction:column;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px">
+          <div class="field-row">
+            <div class="field">
+              <label for="n-nome">Seu nome *</label>
+              <input id="n-nome" type="text" placeholder="Nome do solicitante" required>
+            </div>
+            <div class="field">
+              <label for="n-contato">Contato (ramal/WhatsApp)</label>
+              <input id="n-contato" type="text" placeholder="(65) 99999-9999">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="n-loja">Loja / Setor *</label>
+              <select id="n-loja" required>
+                <option value="">Selecione a loja…</option>
+                <option>Loja 01</option>
+                <option>Loja 02</option>
+                <option>Loja 03</option>
+                <option>Loja 04</option>
+                <option>Loja 05</option>
+                <option>Loja 06</option><option>Loja 07</option><option>Loja 08</option>
+                <option>Loja 09</option><option>Loja 10</option><option>Loja 11</option>
+                <option>Loja 12</option><option>Loja 13</option><option>Loja 14</option>
+                <option>Loja 15</option><option>Loja 16</option><option>Loja 17</option>
+                <option>Loja 18</option>
+                <option>Centro de Distribuição</option>
+                <option>Compras</option>
+                <option>Financeiro</option>
+                <option>Recursos Humanos</option>
+                <option>Diretoria</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="n-categoria">Categoria *</label>
+              <select id="n-categoria" required>
+                <option value="">Selecione…</option>
+                <option>Hardware</option>
+                <option>Software</option>
+                <option>Rede / Internet</option>
+                <option>Impressora</option>
+                <option>PDV / Caixa</option>
+                <option>Câmera / CFTV</option>
+                <option>Acesso / Senha</option>
+                <option>Outro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="n-prioridade">Prioridade *</label>
+              <select id="n-prioridade" required>
+                <option value="">Selecione…</option>
+                <option>Baixa</option>
+                <option>Média</option>
+                <option>Alta</option>
+                <option>Urgente</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="n-equip">Equipamento (série/nº patrimônio)</label>
+              <input id="n-equip" type="text" placeholder="Ex: NB-0042 ou SN123456">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="n-assunto">Assunto *</label>
+            <input id="n-assunto" type="text" placeholder="Resumo do problema em uma linha" required>
+          </div>
+
+          <div class="field">
+            <label for="n-descricao">Descrição detalhada *</label>
+            <textarea id="n-descricao" rows="5" placeholder="Descreva o problema: o que aconteceu, quando começou, mensagens de erro, se já tentou reiniciar, etc." required></textarea>
+          </div>
+
+          <div style="display:flex;gap:10px;justify-content:flex-end">
+            <button type="button" class="btn btn-ghost" onclick="navigate('dashboard')">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="btn-submit-novo">
+              <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 8l5 5 7-7-1.4-1.4L7 10.2 3.4 6.6z"/></svg>
+              Enviar Chamado
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== EQUIPAMENTOS ===== -->
+    <section class="page" id="page-equipamentos">
+      <div class="section-header">
+        <span class="section-title">Equipamentos</span>
+        <button class="btn btn-primary" onclick="openModalEquip()">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2zm.5 3.5h-1V7.5H5.5v1H7.5V10.5h1V8.5H10.5v-1H8.5V5.5z"/></svg>
+          Novo Equipamento
+        </button>
+      </div>
+
+      <div class="filters-bar">
+        <input class="filter-input" type="text" id="fe-busca" placeholder="Buscar por série, nome ou loja…" oninput="applyFiltersEquip()">
+        <select class="filter-select" id="fe-tipo" onchange="applyFiltersEquip()">
+          <option value="">Tipo: Todos</option>
+          <option>Computador Desktop</option>
+          <option>Notebook</option>
+          <option>Impressora</option>
+          <option>Monitor</option>
+          <option>PDV / Caixa</option>
+          <option>Switch / Roteador</option>
+          <option>Câmera / CFTV</option>
+          <option>Nobreak / UPS</option>
+          <option>Outro</option>
+        </select>
+        <select class="filter-select" id="fe-loja" onchange="applyFiltersEquip()">
+          <option value="">Loja: Todas</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearFiltersEquip()">Limpar</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nº Série / Patrimônio</th>
+              <th>Nome / Descrição</th>
+              <th>Tipo</th>
+              <th>Loja / Local</th>
+              <th>Marca / Modelo</th>
+              <th>Status</th>
+              <th>Chamados</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="equip-tbody">
+            <tr><td colspan="8"><div class="loading-row"><div class="spinner"></div> Carregando…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== RELATÓRIOS ===== -->
+    <section class="page" id="page-relatorios">
+      <div class="section-header">
+        <span class="section-title">Análise de Chamados</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select class="filter-select" id="rel-periodo" onchange="renderRelatorios()">
+            <option value="0">Todo o período</option>
+            <option value="7">Últimos 7 dias</option>
+            <option value="30">Últimos 30 dias</option>
+            <option value="90">Últimos 90 dias</option>
+            <option value="180">Últimos 6 meses</option>
+          </select>
+          <select class="filter-select" id="rel-filtro-loja" onchange="renderRelatorios()">
+            <option value="">Todas as lojas</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="exportRelCSV()">📊 Exportar CSV</button>
+        </div>
+      </div>
+
+      <div class="stats-row" id="rel-stats">
+        <div class="stat-card"><div class="stat-label">Total de Chamados</div><div class="stat-value" id="rel-total">–</div></div>
+        <div class="stat-card warning"><div class="stat-label">Tempo Médio (dias)</div><div class="stat-value" id="rel-tempo">–</div></div>
+        <div class="stat-card accent"><div class="stat-label">Categoria Mais Freq.</div><div class="stat-value" id="rel-cat" style="font-size:16px">–</div></div>
+        <div class="stat-card danger"><div class="stat-label">Loja Mais Demandante</div><div class="stat-value" id="rel-loja" style="font-size:16px">–</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+          <div class="section-title" style="margin-bottom:12px">Por Categoria</div>
+          <div id="rel-cat-bars"></div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+          <div class="section-title" style="margin-bottom:12px">Por Loja (Top 10)</div>
+          <div id="rel-loja-bars"></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+          <div class="section-title" style="margin-bottom:12px">Por Prioridade</div>
+          <div id="rel-prio-bars"></div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+          <div class="section-title" style="margin-bottom:12px">Por Status</div>
+          <div id="rel-status-bars"></div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+        <div class="section-title" style="margin-bottom:12px">Problemas Recorrentes (mesma categoria + loja, &gt;1 ocorrência)</div>
+        <div id="rel-recorrentes"></div>
+      </div>
+    </section>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ===== MODAL DETALHE CHAMADO ===== -->
+<div class="modal-overlay" id="modal-detalhe">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="md-titulo">Chamado</span>
+      <button class="modal-close" onclick="closeModal('modal-detalhe')">✕ Fechar</button>
+    </div>
+    <div class="modal-body" id="md-body"></div>
+  </div>
+</div>
+
+<!-- ===== MODAL NOVO EQUIPAMENTO ===== -->
+<div class="modal-overlay" id="modal-equip">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="me-titulo">Novo Equipamento</span>
+      <button class="modal-close" onclick="closeModal('modal-equip')">✕ Fechar</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-equip" onsubmit="submitEquip(event)" style="display:flex;flex-direction:column;gap:14px">
+        <input type="hidden" id="e-id">
+        <div class="field-row">
+          <div class="field">
+            <label for="e-serie">Nº de Série / Patrimônio *</label>
+            <input id="e-serie" type="text" placeholder="Ex: NB-0042" required>
+          </div>
+          <div class="field">
+            <label for="e-tipo">Tipo *</label>
+            <select id="e-tipo" required>
+              <option value="">Selecione…</option>
+              <option>Computador Desktop</option><option>Notebook</option>
+              <option>Impressora</option><option>Monitor</option>
+              <option>PDV / Caixa</option><option>Switch / Roteador</option>
+              <option>Câmera / CFTV</option><option>Nobreak / UPS</option>
+              <option>Outro</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="e-nome">Nome / Descrição *</label>
+          <input id="e-nome" type="text" placeholder="Ex: Computador Caixa 2" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="e-marca">Marca</label>
+            <input id="e-marca" type="text" placeholder="Dell, HP, Positivo…">
+          </div>
+          <div class="field">
+            <label for="e-modelo">Modelo</label>
+            <input id="e-modelo" type="text" placeholder="Inspiron 15, ProBook…">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="e-loja">Loja / Local *</label>
+            <select id="e-loja" required>
+              <option value="">Selecione…</option>
+              <option>Loja 01</option><option>Loja 02</option>
+              <option>Loja 03</option><option>Loja 04</option>
+              <option>Loja 05</option>
+              <option>Loja 06</option><option>Loja 07</option><option>Loja 08</option>
+              <option>Loja 09</option><option>Loja 10</option><option>Loja 11</option>
+              <option>Loja 12</option><option>Loja 13</option><option>Loja 14</option>
+              <option>Loja 15</option><option>Loja 16</option><option>Loja 17</option>
+              <option>Loja 18</option>
+              <option>Centro de Distribuição</option>
+              <option>Compras</option>
+              <option>Financeiro</option>
+              <option>Recursos Humanos</option>
+              <option>Diretoria</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="e-status">Status</label>
+            <select id="e-status">
+              <option>Em uso</option>
+              <option>Em manutenção</option>
+              <option>Disponível</option>
+              <option>Descartado</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="e-obs">Observações</label>
+          <textarea id="e-obs" rows="2" placeholder="Notas relevantes…"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modal-equip')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-equip">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ──────────────────────────────────────────────
+// State
+// ──────────────────────────────────────────────
+let allChamados = [];
+let allEquipamentos = [];
+let db = null;
+let unsubs = [];
+let sortField = 'criadoEm';
+let sortDir   = 'desc';
+
+const PRIO_ORDER = { 'Urgente':0,'Alta':1,'Média':2,'Baixa':3 };
+const STATUS_ORDER = { 'Aberto':0,'Em Andamento':1,'Fechado':2 };
+
+const LOJAS = [
+  'Loja 01','Loja 02','Loja 03','Loja 04',
+  'Loja 05','Loja 06','Loja 07','Loja 08','Loja 09','Loja 10',
+  'Loja 11','Loja 12','Loja 13','Loja 14','Loja 15','Loja 16','Loja 17','Loja 18',
+  'Centro de Distribuição','Compras','Financeiro','Recursos Humanos','Diretoria'
+];
+
+// ──────────────────────────────────────────────
+// Capability init
+// ──────────────────────────────────────────────
+async function initDb() {
+  try {
+    if (!window.claude) return;
+    db = await window.claude.use('db');
+    if (!db) { toast('Banco offline – dados não persistidos', 'err'); return; }
+    subscribeAll();
+  } catch(e) { console.error(e); }
+}
+
+function subscribeAll() {
+  // Chamados
+  const unsub1 = db.collection('chamados')
+    .orderBy('criadoEm','desc')
+    .onSnapshot(snap => {
+      allChamados = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderAll();
+    }, e => console.error('chamados:', e));
+
+  // Equipamentos
+  const unsub2 = db.collection('equipamentos')
+    .orderBy('nome','asc')
+    .onSnapshot(snap => {
+      allEquipamentos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderEquipamentos();
+    }, e => console.error('equip:', e));
+
+  unsubs.push(unsub1, unsub2);
+}
+
+// ──────────────────────────────────────────────
+// Navigation
+// ──────────────────────────────────────────────
+const PAGE_TITLES = {
+  dashboard:'Dashboard', chamados:'Chamados', novo:'Novo Chamado',
+  equipamentos:'Equipamentos', relatorios:'Relatórios'
+};
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelector(`[data-page="${page}"]`)?.classList.add('active');
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[page] || page;
+  closeSidebar();
+  if (page === 'relatorios') renderRelatorios();
+  if (page === 'chamados') populateLojaFilter();
+  if (page === 'equipamentos') populateLojaFilterEquip();
+  try { localStorage.setItem('ti-page', page); } catch(e){}
+}
+
+// ──────────────────────────────────────────────
+// Sidebar mobile
+// ──────────────────────────────────────────────
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('nav-overlay');
+  if (s.classList.contains('open')) { closeSidebar(); }
+  else { s.classList.add('open'); o.style.display='block'; }
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('nav-overlay').style.display='none';
+}
+
+// ──────────────────────────────────────────────
+// Theme
+// ──────────────────────────────────────────────
+function toggleTheme() {
+  const r = document.documentElement;
+  const cur = r.dataset.theme || '';
+  const next = cur === 'light' ? 'dark' : cur === 'dark' ? '' : 'light';
+  if (next) r.dataset.theme = next; else delete r.dataset.theme;
+  try { localStorage.setItem('ti-theme', next); } catch(e){}
+}
+try {
+  const t = localStorage.getItem('ti-theme');
+  if (t) document.documentElement.dataset.theme = t;
+} catch(e){}
+
+// ──────────────────────────────────────────────
+// ID generator
+// ──────────────────────────────────────────────
+let _counter = Date.now();
+function genId() { return 'c' + (++_counter).toString(36); }
+
+// ──────────────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────────────
+function fmtDate(ts) {
+  if (!ts) return '–';
+  const d = new Date(ts);
+  return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+function fmtDateShort(ts) {
+  if (!ts) return '–';
+  return new Date(ts).toLocaleDateString('pt-BR');
+}
+function statusBadge(s) {
+  const map = {
+    'Aberto':'badge-aberto','Em Andamento':'badge-andamento','Fechado':'badge-fechado'
+  };
+  return `<span class="badge ${map[s]||''}">${s}</span>`;
+}
+function prioBadge(p) {
+  const map = {
+    'Urgente':'badge-urgente','Alta':'badge-alta','Média':'badge-media','Baixa':'badge-baixa'
+  };
+  return `<span class="badge ${map[p]||''}">${p}</span>`;
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ──────────────────────────────────────────────
+// Toast
+// ──────────────────────────────────────────────
+function toast(msg, type='ok') {
+  const c = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ──────────────────────────────────────────────
+// Modal
+// ──────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ──────────────────────────────────────────────
+// Chamados – Render
+// ──────────────────────────────────────────────
+function renderAll() {
+  renderDashboard();
+  renderChamadosTable(getSortedFiltered());
+}
+
+function getFilteredChamados() {
+  const busca   = (document.getElementById('f-busca')?.value||'').toLowerCase();
+  const status  = document.getElementById('f-status')?.value||'';
+  const prio    = document.getElementById('f-prioridade')?.value||'';
+  const cat     = document.getElementById('f-categoria')?.value||'';
+  const loja    = document.getElementById('f-loja')?.value||'';
+  const periodo = parseInt(document.getElementById('f-periodo')?.value||'0');
+  const now     = Date.now();
+  const result  = allChamados.filter(c => {
+    if (status  && c.status !== status) return false;
+    if (prio    && c.prioridade !== prio) return false;
+    if (cat     && c.categoria !== cat) return false;
+    if (loja    && c.loja !== loja) return false;
+    if (periodo && c.criadoEm && (now - c.criadoEm) > periodo*24*60*60*1000) return false;
+    if (busca) {
+      const hay = [c.id,c.loja,c.assunto,c.nome,c.categoria,c.descricao,c.contato,c.equipamento].join(' ').toLowerCase();
+      if (!hay.includes(busca)) return false;
+    }
+    return true;
+  });
+  const cnt = document.getElementById('f-count');
+  if (cnt) cnt.textContent = result.length < allChamados.length ? `${result.length} de ${allChamados.length}` : `${allChamados.length} chamados`;
+  return result;
+}
+
+function renderChamadosTable(list) {
+  const tb = document.getElementById('chamados-tbody');
+  if (!tb) return;
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="9"><div class="empty-state">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="currentColor"><rect x="6" y="8" width="28" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="16" x2="28" y2="16" stroke="currentColor" stroke-width="2"/><line x1="12" y1="22" x2="22" y2="22" stroke="currentColor" stroke-width="2"/></svg>
+      <p>Nenhum chamado encontrado</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = list.map((c,i) => {
+    const num = String(list.length - i).padStart(4,'0');
+    return `<tr style="cursor:pointer" onclick="verDetalhe('${esc(c.id)}')">
+      <td><span style="font-family:var(--mono);font-size:12px;color:var(--fg3)">#${esc(c.id.slice(-4).toUpperCase())}</span></td>
+      <td style="white-space:nowrap;font-size:12px;color:var(--fg2)">${fmtDateShort(c.criadoEm)}</td>
+      <td style="font-size:12.5px">${esc(c.loja)}</td>
+      <td style="font-size:12.5px">${esc(c.nome)}</td>
+      <td class="wrap" style="max-width:200px;font-size:13px">${esc(c.assunto)}</td>
+      <td><span style="font-size:12px;color:var(--fg2)">${esc(c.categoria)}</span></td>
+      <td>${prioBadge(c.prioridade)}</td>
+      <td>${statusBadge(c.status)}</td>
+      <td onclick="event.stopPropagation()">
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="verDetalhe('${esc(c.id)}')">Ver</button>
+          <button class="btn btn-ghost btn-sm" onclick="mudarStatus('${esc(c.id)}')">Status</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function sortBy(field) {
+  if (sortField === field) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+  else { sortField = field; sortDir = field === 'criadoEm' ? 'desc' : 'asc'; }
+  document.querySelectorAll('[id^="sort-"]').forEach(el => el.textContent = '');
+  const arrow = sortDir === 'asc' ? '▲' : '▼';
+  const el = document.getElementById('sort-'+field);
+  if (el) el.textContent = arrow;
+  applyFilters();
+}
+
+function getSortedFiltered() {
+  const list = getFilteredChamados();
+  return list.sort((a,b) => {
+    let va = a[sortField], vb = b[sortField];
+    if (sortField === 'prioridade') { va = PRIO_ORDER[va]??9; vb = PRIO_ORDER[vb]??9; }
+    else if (sortField === 'status') { va = STATUS_ORDER[va]??9; vb = STATUS_ORDER[vb]??9; }
+    if (typeof va === 'number' && typeof vb === 'number') return sortDir==='asc'?va-vb:vb-va;
+    return sortDir==='asc'?String(va||'').localeCompare(String(vb||''),'pt-BR'):String(vb||'').localeCompare(String(va||''),'pt-BR');
+  });
+}
+
+function applyFilters() { renderChamadosTable(getSortedFiltered()); }
+function clearFilters() {
+  ['f-busca','f-status','f-prioridade','f-categoria','f-loja','f-periodo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  applyFilters();
+}
+
+function populateLojaFilter() {
+  const sel = document.getElementById('f-loja');
+  if (!sel || sel.options.length > 1) return;
+  LOJAS.forEach(l => { const o = document.createElement('option'); o.value=l; o.textContent=l; sel.appendChild(o); });
+}
+function populateLojaFilterEquip() {
+  const sel = document.getElementById('fe-loja');
+  if (!sel || sel.options.length > 1) return;
+  LOJAS.forEach(l => { const o = document.createElement('option'); o.value=l; o.textContent=l; sel.appendChild(o); });
+}
+
+// ──────────────────────────────────────────────
+// Dashboard
+// ──────────────────────────────────────────────
+function renderDashboard() {
+  const now = Date.now();
+  const ms30d = 30*24*60*60*1000;
+  const abertos    = allChamados.filter(c => c.status === 'Aberto').length;
+  const andamento  = allChamados.filter(c => c.status === 'Em Andamento').length;
+  const urgentes   = allChamados.filter(c => c.prioridade === 'Urgente' && c.status !== 'Fechado').length;
+  const fechados30 = allChamados.filter(c => c.status === 'Fechado' && (now - c.criadoEm) < ms30d).length;
+
+  setText('stat-abertos',  abertos);
+  setText('stat-andamento', andamento);
+  setText('stat-urgentes', urgentes);
+  setText('stat-fechados', fechados30);
+
+  const badge = document.getElementById('badge-abertos');
+  if (badge) badge.textContent = abertos;
+
+  // Recentes
+  const rl = document.getElementById('recentes-list');
+  if (rl) {
+    const rec = allChamados.slice(0,6);
+    if (!rec.length) { rl.innerHTML = '<div class="empty-state"><p>Nenhum chamado ainda</p></div>'; }
+    else {
+      rl.innerHTML = rec.map(c => `
+        <div onclick="verDetalhe('${esc(c.id)}')" style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:6px;cursor:pointer;transition:background .1s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.assunto)}</div>
+            <div style="font-size:11px;color:var(--fg3)">${esc(c.loja)} · ${fmtDateShort(c.criadoEm)}</div>
+          </div>
+          ${statusBadge(c.status)}
+        </div>`).join('');
+    }
+  }
+
+  // Cat chart
+  renderCatChart();
+}
+
+function renderCatChart() {
+  const el = document.getElementById('cat-chart');
+  if (!el) return;
+  const counts = {};
+  allChamados.forEach(c => { counts[c.categoria] = (counts[c.categoria]||0)+1; });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if (!sorted.length) { el.innerHTML = '<div class="empty-state"><p>Sem dados ainda</p></div>'; return; }
+  const max = sorted[0][1];
+  el.innerHTML = sorted.map(([cat,n]) => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <div style="font-size:12px;width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg2)">${esc(cat)}</div>
+      <div style="flex:1;background:var(--bg3);border-radius:3px;height:8px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(n/max*100)}%;background:var(--accent);border-radius:3px;transition:width .5s"></div>
+      </div>
+      <div style="font-size:11px;font-variant-numeric:tabular-nums;color:var(--fg3);width:20px;text-align:right">${n}</div>
+    </div>`).join('');
+}
+
+function setText(id, v) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = v;
+}
+
+// ──────────────────────────────────────────────
+// Detalhe chamado
+// ──────────────────────────────────────────────
+function verDetalhe(id) {
+  const c = allChamados.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('md-titulo').textContent = `Chamado #${id.slice(-4).toUpperCase()} – ${c.assunto||''}`;
+  document.getElementById('md-body').innerHTML = `
+    <div class="detail-header">
+      <div style="flex:1">
+        <div style="font-size:16px;font-weight:600">${esc(c.assunto)}</div>
+        <div style="font-size:12px;color:var(--fg3);margin-top:3px">Aberto em ${fmtDate(c.criadoEm)}</div>
+      </div>
+      ${statusBadge(c.status)}
+      ${prioBadge(c.prioridade)}
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-field"><div class="detail-field-label">Solicitante</div><div class="detail-field-val">${esc(c.nome)}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Contato</div><div class="detail-field-val">${esc(c.contato)||'–'}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Loja / Setor</div><div class="detail-field-val">${esc(c.loja)}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Categoria</div><div class="detail-field-val">${esc(c.categoria)}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Equipamento</div><div class="detail-field-val">${esc(c.equipamento)||'–'}</div></div>
+      <div class="detail-field"><div class="detail-field-label">ID do Chamado</div><div class="detail-field-val" style="font-family:var(--mono);font-size:12px">${esc(c.id)}</div></div>
+    </div>
+
+    <div>
+      <div style="font-size:11px;font-weight:600;color:var(--fg3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Descrição</div>
+      <div class="detail-body">${esc(c.descricao)}</div>
+    </div>
+
+    ${c.observacao ? `<div>
+      <div style="font-size:11px;font-weight:600;color:var(--fg3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Observação TI</div>
+      <div class="detail-body" style="border-left:3px solid var(--accent)">${esc(c.observacao)}</div>
+    </div>` : ''}
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${c.status !== 'Em Andamento' ? `<button class="btn btn-ghost btn-sm" onclick="setStatus('${esc(c.id)}','Em Andamento')">▶ Em Andamento</button>` : ''}
+      ${c.status !== 'Fechado'      ? `<button class="btn btn-primary btn-sm" onclick="setStatus('${esc(c.id)}','Fechado')">✓ Fechar Chamado</button>` : ''}
+      ${c.status !== 'Aberto'       ? `<button class="btn btn-ghost btn-sm" onclick="setStatus('${esc(c.id)}','Aberto')">↩ Reabrir</button>` : ''}
+      <button class="btn btn-ghost btn-sm" onclick="addObservacao('${esc(c.id)}')">✏ Observação</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteChamado('${esc(c.id)}')">🗑 Excluir</button>
+    </div>
+  `;
+  openModal('modal-detalhe');
+}
+
+async function setStatus(id, status) {
+  if (!db) return toast('Sem conexão com banco', 'err');
+  try {
+    await db.doc('chamados/'+id).update({ status, atualizadoEm: Date.now() });
+    toast(`Status → ${status}`, 'ok');
+    closeModal('modal-detalhe');
+  } catch(e) { toast('Erro ao atualizar: '+e.message, 'err'); }
+}
+
+function mudarStatus(id) { verDetalhe(id); }
+
+async function addObservacao(id) {
+  const obs = prompt('Digite a observação / resposta para este chamado:');
+  if (!obs) return;
+  if (!db) return toast('Sem conexão com banco', 'err');
+  try {
+    await db.doc('chamados/'+id).update({ observacao: obs, atualizadoEm: Date.now() });
+    toast('Observação salva!', 'ok');
+    closeModal('modal-detalhe');
+  } catch(e) { toast('Erro: '+e.message, 'err'); }
+}
+
+async function deleteChamado(id) {
+  const c = allChamados.find(x => x.id === id);
+  const ok = confirm(`Excluir o chamado "${c?.assunto || id}"?\n\nEsta ação não pode ser desfeita.`);
+  if (!ok) return;
+  if (!db) return toast('Sem conexão com banco', 'err');
+  try {
+    await db.doc('chamados/'+id).delete();
+    toast('Chamado excluído', 'info');
+    closeModal('modal-detalhe');
+  } catch(e) { toast('Erro: '+e.message, 'err'); }
+}
+
+// ──────────────────────────────────────────────
+// Novo chamado
+// ──────────────────────────────────────────────
+async function submitChamado(ev) {
+  ev.preventDefault();
+  if (!db) { toast('Banco offline – tente novamente em instantes', 'err'); return; }
+  const btn = document.getElementById('btn-submit-novo');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+
+  const id = genId();
+  const data = {
+    nome:       document.getElementById('n-nome').value.trim(),
+    contato:    document.getElementById('n-contato').value.trim(),
+    loja:       document.getElementById('n-loja').value,
+    categoria:  document.getElementById('n-categoria').value,
+    prioridade: document.getElementById('n-prioridade').value,
+    equipamento:document.getElementById('n-equip').value.trim(),
+    assunto:    document.getElementById('n-assunto').value.trim(),
+    descricao:  document.getElementById('n-descricao').value.trim(),
+    status:     'Aberto',
+    criadoEm:   Date.now(),
+    atualizadoEm: Date.now(),
+  };
+
+  try {
+    await db.doc('chamados/'+id).set(data);
+    toast('Chamado aberto com sucesso! 🎉', 'ok');
+    document.getElementById('form-novo').reset();
+    navigate('chamados');
+  } catch(e) {
+    toast('Erro ao salvar: '+e.message, 'err');
+  } finally {
+    btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M2 8l5 5 7-7-1.4-1.4L7 10.2 3.4 6.6z"/></svg> Enviar Chamado`;
+  }
+}
+
+// ──────────────────────────────────────────────
+// Equipamentos
+// ──────────────────────────────────────────────
+function renderEquipamentos() {
+  renderEquipTable(getFilteredEquip());
+}
+
+function getFilteredEquip() {
+  const busca = (document.getElementById('fe-busca')?.value||'').toLowerCase();
+  const tipo  = document.getElementById('fe-tipo')?.value||'';
+  const loja  = document.getElementById('fe-loja')?.value||'';
+  return allEquipamentos.filter(e => {
+    if (tipo && e.tipo !== tipo) return false;
+    if (loja && e.loja !== loja) return false;
+    if (busca) {
+      const hay = [e.serie,e.nome,e.marca,e.modelo,e.loja,e.tipo].join(' ').toLowerCase();
+      if (!hay.includes(busca)) return false;
+    }
+    return true;
+  });
+}
+
+function renderEquipTable(list) {
+  const tb = document.getElementById('equip-tbody');
+  if (!tb) return;
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="32" height="22" rx="3"/><line x1="20" y1="30" x2="20" y2="36"/><line x1="12" y1="36" x2="28" y2="36"/></svg>
+      <p>Nenhum equipamento cadastrado</p></div></td></tr>`;
+    return;
+  }
+  const equipChamados = {};
+  allChamados.forEach(c => {
+    if (c.equipamento) {
+      const k = c.equipamento.toLowerCase().trim();
+      equipChamados[k] = (equipChamados[k]||0)+1;
+    }
+  });
+  const stMap = {'Em uso':'badge-andamento','Em manutenção':'badge-urgente','Disponível':'badge-fechado','Descartado':'badge-baixa'};
+  tb.innerHTML = list.map(e => {
+    const n = equipChamados[e.serie?.toLowerCase().trim()] || 0;
+    return `<tr>
+      <td><span style="font-family:var(--mono);font-size:12px">${esc(e.serie)}</span></td>
+      <td style="font-weight:500">${esc(e.nome)}</td>
+      <td style="font-size:12px;color:var(--fg2)">${esc(e.tipo)}</td>
+      <td style="font-size:12.5px">${esc(e.loja)}</td>
+      <td style="font-size:12px;color:var(--fg2)">${esc(e.marca||'')}&nbsp;${esc(e.modelo||'')}</td>
+      <td><span class="badge ${stMap[e.status]||'badge-aberto'}">${esc(e.status||'Em uso')}</span></td>
+      <td><span style="font-size:12px;font-variant-numeric:tabular-nums">${n > 0 ? `<span style="color:var(--warning)">${n} chamado${n>1?'s':''}</span>` : '<span style="color:var(--fg3)">–</span>'}</span></td>
+      <td onclick="event.stopPropagation()">
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="editEquip('${esc(e.id)}')">Editar</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteEquip('${esc(e.id)}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function applyFiltersEquip() { renderEquipTable(getFilteredEquip()); }
+function clearFiltersEquip() {
+  ['fe-busca','fe-tipo','fe-loja'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  applyFiltersEquip();
+}
+
+function openModalEquip(id) {
+  document.getElementById('e-id').value = '';
+  document.getElementById('form-equip').reset();
+  document.getElementById('me-titulo').textContent = 'Novo Equipamento';
+  if (id) {
+    const e = allEquipamentos.find(x=>x.id===id);
+    if (!e) return;
+    document.getElementById('me-titulo').textContent = 'Editar Equipamento';
+    document.getElementById('e-id').value    = e.id;
+    document.getElementById('e-serie').value = e.serie||'';
+    document.getElementById('e-tipo').value  = e.tipo||'';
+    document.getElementById('e-nome').value  = e.nome||'';
+    document.getElementById('e-marca').value = e.marca||'';
+    document.getElementById('e-modelo').value= e.modelo||'';
+    document.getElementById('e-loja').value  = e.loja||'';
+    document.getElementById('e-status').value= e.status||'Em uso';
+    document.getElementById('e-obs').value   = e.obs||'';
+  }
+  openModal('modal-equip');
+}
+function editEquip(id) { openModalEquip(id); }
+
+async function submitEquip(ev) {
+  ev.preventDefault();
+  if (!db) { toast('Banco offline', 'err'); return; }
+  const btn = document.getElementById('btn-submit-equip');
+  btn.disabled = true; btn.textContent = 'Salvando…';
+  const existId = document.getElementById('e-id').value;
+  const data = {
+    serie:  document.getElementById('e-serie').value.trim(),
+    tipo:   document.getElementById('e-tipo').value,
+    nome:   document.getElementById('e-nome').value.trim(),
+    marca:  document.getElementById('e-marca').value.trim(),
+    modelo: document.getElementById('e-modelo').value.trim(),
+    loja:   document.getElementById('e-loja').value,
+    status: document.getElementById('e-status').value,
+    obs:    document.getElementById('e-obs').value.trim(),
+    atualizadoEm: Date.now(),
+  };
+  try {
+    if (existId) {
+      await db.doc('equipamentos/'+existId).update(data);
+      toast('Equipamento atualizado!', 'ok');
+    } else {
+      data.criadoEm = Date.now();
+      const id = 'e'+genId();
+      await db.doc('equipamentos/'+id).set(data);
+      toast('Equipamento cadastrado!', 'ok');
+    }
+    closeModal('modal-equip');
+  } catch(e) { toast('Erro: '+e.message, 'err'); }
+  finally { btn.disabled=false; btn.textContent='Salvar'; }
+}
+
+async function deleteEquip(id) {
+  const e = allEquipamentos.find(x=>x.id===id);
+  if (!confirm(`Remover "${e?.nome||id}" do inventário?`)) return;
+  if (!db) return toast('Banco offline','err');
+  try { await db.doc('equipamentos/'+id).delete(); toast('Equipamento removido','info'); }
+  catch(e) { toast('Erro: '+e.message,'err'); }
+}
+
+// ──────────────────────────────────────────────
+// Relatórios
+// ──────────────────────────────────────────────
+function getRelData() {
+  const periodo = parseInt(document.getElementById('rel-periodo')?.value||'0');
+  const filterLoja = document.getElementById('rel-filtro-loja')?.value||'';
+  const now = Date.now();
+  return allChamados.filter(c => {
+    if (filterLoja && c.loja !== filterLoja) return false;
+    if (periodo && c.criadoEm && (now - c.criadoEm) > periodo*24*60*60*1000) return false;
+    return true;
+  });
+}
+
+function renderRelatorios() {
+  // populate loja filter once
+  const relLoja = document.getElementById('rel-filtro-loja');
+  if (relLoja && relLoja.options.length < 2) {
+    LOJAS.forEach(l=>{ const o=document.createElement('option'); o.value=l; o.textContent=l; relLoja.appendChild(o); });
+  }
+
+  const data = getRelData();
+  const total = data.length;
+  setText('rel-total', total);
+
+  // Tempo médio de fechamento
+  const fechados = data.filter(c=>c.status==='Fechado'&&c.atualizadoEm&&c.criadoEm);
+  if (fechados.length) {
+    const avg = fechados.reduce((s,c)=>s+(c.atualizadoEm-c.criadoEm),0)/fechados.length;
+    setText('rel-tempo', (avg/86400000).toFixed(1));
+  } else { setText('rel-tempo','–'); }
+
+  // Por categoria, loja, prioridade, status
+  const catC={}, lojaC={}, prioC={}, statusC={};
+  data.forEach(c=>{
+    catC[c.categoria]=(catC[c.categoria]||0)+1;
+    lojaC[c.loja]=(lojaC[c.loja]||0)+1;
+    prioC[c.prioridade]=(prioC[c.prioridade]||0)+1;
+    statusC[c.status]=(statusC[c.status]||0)+1;
+  });
+  const topCat  = Object.entries(catC).sort((a,b)=>b[1]-a[1]);
+  const topLoja = Object.entries(lojaC).sort((a,b)=>b[1]-a[1]);
+  const topPrio = ['Urgente','Alta','Média','Baixa'].map(p=>[p,prioC[p]||0]);
+  const topSt   = ['Aberto','Em Andamento','Fechado'].map(s=>[s,statusC[s]||0]);
+
+  setText('rel-cat',  topCat[0]?.[0]||'–');
+  setText('rel-loja', topLoja[0]?.[0]||'–');
+
+  renderBars('rel-cat-bars',   topCat,           'var(--accent)');
+  renderBars('rel-loja-bars',  topLoja.slice(0,10),'var(--warning)');
+  renderBars('rel-prio-bars',  topPrio,           'var(--danger)');
+  renderBars('rel-status-bars',topSt,             'var(--success)');
+
+  // Recorrentes
+  const grp={};
+  data.forEach(c=>{
+    const k=`${c.categoria}||${c.loja}`;
+    if(!grp[k]) grp[k]={cat:c.categoria,loja:c.loja,n:0,urgentes:0};
+    grp[k].n++;
+    if(c.prioridade==='Urgente') grp[k].urgentes++;
+  });
+  const recEl=document.getElementById('rel-recorrentes');
+  const sorted=Object.values(grp).filter(g=>g.n>1).sort((a,b)=>b.n-a.n).slice(0,20);
+  if (!sorted.length) { recEl.innerHTML='<div class="empty-state"><p>Sem recorrências identificadas ainda</p></div>'; return; }
+  recEl.innerHTML=`<div class="table-wrap"><table>
+    <thead><tr><th>Categoria</th><th>Loja</th><th>Ocorrências</th><th>Urgentes</th><th>Risco</th></tr></thead>
+    <tbody>${sorted.map(g=>{
+      const risco = g.n>=5||g.urgentes>=2 ? '<span class="badge badge-urgente">Alto</span>' :
+                    g.n>=3 ? '<span class="badge badge-alta">Médio</span>' :
+                    '<span class="badge badge-baixa">Baixo</span>';
+      return `<tr>
+        <td>${esc(g.cat)}</td>
+        <td>${esc(g.loja)}</td>
+        <td><span style="font-weight:700;color:${g.n>=5?'var(--danger)':g.n>=3?'var(--warning)':'var(--fg)'};font-variant-numeric:tabular-nums">${g.n}</span></td>
+        <td>${g.urgentes>0?`<span style="color:var(--danger);font-weight:600">${g.urgentes}</span>`:'–'}</td>
+        <td>${risco}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+async function exportRelCSV() {
+  const data = getRelData();
+  if (!data.length) { toast('Sem dados no período', 'info'); return; }
+  const dl = await getDownloads();
+  const cols = ['ID','Data','Loja','Solicitante','Categoria','Prioridade','Status','Assunto','Equipamento'];
+  const rows = data.map(c=>[
+    c.id, fmtDate(c.criadoEm), c.loja, c.nome, c.categoria, c.prioridade, c.status, c.assunto, c.equipamento||''
+  ].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','));
+  const csv = '﻿' + [cols.join(','),...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const filename = `relatorio_${new Date().toISOString().slice(0,10)}.csv`;
+  if (dl) {
+    try { await dl.save({filename, data: blob}); toast(`${data.length} registros exportados`,'ok'); } catch(e) { toast('Download cancelado','info'); }
+  } else {
+    const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    toast(`${data.length} registros exportados`,'ok');
+  }
+}
+
+function renderBars(elId, entries, color) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (!entries.length) { el.innerHTML='<div class="empty-state"><p>Sem dados</p></div>'; return; }
+  const max = entries[0][1];
+  el.innerHTML = entries.map(([label,n])=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <div style="font-size:12px;width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg2)">${esc(label)}</div>
+      <div style="flex:1;background:var(--bg3);border-radius:3px;height:10px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(n/max*100)}%;background:${color};border-radius:3px"></div>
+      </div>
+      <div style="font-size:12px;font-variant-numeric:tabular-nums;font-weight:600;color:var(--fg);width:24px;text-align:right">${n}</div>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────────────────
+// Exportação CSV
+// ──────────────────────────────────────────────
+let _downloads = null;
+async function getDownloads() {
+  if (!_downloads) _downloads = await window.claude?.use('downloads');
+  return _downloads;
+}
+
+async function exportCSV() {
+  const list = getSortedFiltered();
+  if (!list.length) { toast('Nenhum dado para exportar', 'info'); return; }
+  const dl = await getDownloads();
+  const cols = ['ID','Data','Loja','Solicitante','Contato','Categoria','Prioridade','Status','Assunto','Equipamento','Descricao'];
+  const rows = list.map(c => [
+    c.id, fmtDate(c.criadoEm), c.loja, c.nome, c.contato||'',
+    c.categoria, c.prioridade, c.status, c.assunto,
+    c.equipamento||'', (c.descricao||'').replace(/\n/g,' ')
+  ].map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(','));
+  const csv = '﻿' + [cols.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const filename = `chamados_${new Date().toISOString().slice(0,10)}.csv`;
+  if (dl) {
+    try { await dl.save({filename, data: blob}); toast(`${list.length} chamados exportados`, 'ok'); } catch(e) { toast('Download cancelado ou não suportado','info'); }
+  } else {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    toast(`${list.length} chamados exportados`, 'ok');
+  }
+}
+
+// ──────────────────────────────────────────────
+// Boot
+// ──────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  populateLojaFilter();
+  populateLojaFilterEquip();
+  // Restore page
+  try {
+    const saved = localStorage.getItem('ti-page');
+    if (saved && ['dashboard','chamados','novo','equipamentos','relatorios'].includes(saved)) navigate(saved);
+  } catch(e){}
+  initDb();
+});
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click', ev => { if(ev.target===o) o.classList.remove('open'); });
+});
+</script>
+
+</body></html>
