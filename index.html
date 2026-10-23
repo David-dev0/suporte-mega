@@ -826,18 +826,24 @@ tbody td.wrap { white-space: normal; word-break: break-word; }
 <!-- Toast container -->
 <div class="toast-container" id="toasts"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <script>
+// ──────────────────────────────────────────────
+// Supabase config
+// ──────────────────────────────────────────────
+const SUPA_URL  = 'https://qdqjiikkiatrqgoyhfgv.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkcWppaWtraWF0cnFnb3loZmd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2OTgxOTYsImV4cCI6MjEwODI3NDE5Nn0.vhj3Y8s4qPUnZzElrb98vSD7iOI92R5Ns64bI8R_XrY';
+const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+
 // ──────────────────────────────────────────────
 // State
 // ──────────────────────────────────────────────
 let allChamados = [];
 let allEquipamentos = [];
-let db = null;
-let unsubs = [];
-let sortField = 'criadoEm';
+let sortField = 'criado_em';
 let sortDir   = 'desc';
 
-const PRIO_ORDER = { 'Urgente':0,'Alta':1,'Média':2,'Baixa':3 };
+const PRIO_ORDER   = { 'Urgente':0,'Alta':1,'Média':2,'Baixa':3 };
 const STATUS_ORDER = { 'Aberto':0,'Em Andamento':1,'Fechado':2 };
 
 const LOJAS = [
@@ -848,35 +854,62 @@ const LOJAS = [
 ];
 
 // ──────────────────────────────────────────────
-// Capability init
+// Init – carrega dados e assina realtime
 // ──────────────────────────────────────────────
 async function initDb() {
   try {
-    if (!window.claude) return;
-    db = await window.claude.use('db');
-    if (!db) { toast('Banco offline – dados não persistidos', 'err'); return; }
+    await loadChamados();
+    await loadEquipamentos();
     subscribeAll();
-  } catch(e) { console.error(e); }
+  } catch(e) {
+    console.error('initDb:', e);
+    toast('Erro ao conectar com o banco', 'err');
+  }
+}
+
+async function loadChamados() {
+  const { data, error } = await supa
+    .from('chamados')
+    .select('*')
+    .order('criado_em', { ascending: false });
+  if (error) throw error;
+  allChamados = (data || []).map(normalizeRow);
+  renderAll();
+}
+
+async function loadEquipamentos() {
+  const { data, error } = await supa
+    .from('equipamentos')
+    .select('*')
+    .order('nome', { ascending: true });
+  if (error) throw error;
+  allEquipamentos = (data || []).map(normalizeRow);
+  renderEquipamentos();
+}
+
+// Normaliza snake_case → camelCase para manter compatibilidade com o restante do código
+function normalizeRow(r) {
+  return {
+    ...r,
+    criadoEm:    r.criado_em    ? new Date(r.criado_em).getTime()    : null,
+    atualizadoEm:r.atualizado_em? new Date(r.atualizado_em).getTime(): null,
+  };
 }
 
 function subscribeAll() {
-  // Chamados
-  const unsub1 = db.collection('chamados')
-    .orderBy('criadoEm','desc')
-    .onSnapshot(snap => {
-      allChamados = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderAll();
-    }, e => console.error('chamados:', e));
+  // Realtime chamados
+  supa.channel('chamados-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'chamados' }, async () => {
+      await loadChamados();
+    })
+    .subscribe();
 
-  // Equipamentos
-  const unsub2 = db.collection('equipamentos')
-    .orderBy('nome','asc')
-    .onSnapshot(snap => {
-      allEquipamentos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderEquipamentos();
-    }, e => console.error('equip:', e));
-
-  unsubs.push(unsub1, unsub2);
+  // Realtime equipamentos
+  supa.channel('equip-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'equipamentos' }, async () => {
+      await loadEquipamentos();
+    })
+    .subscribe();
 }
 
 // ──────────────────────────────────────────────
@@ -1196,9 +1229,12 @@ function verDetalhe(id) {
 }
 
 async function setStatus(id, status) {
-  if (!db) return toast('Sem conexão com banco', 'err');
   try {
-    await db.doc('chamados/'+id).update({ status, atualizadoEm: Date.now() });
+    const { error } = await supa
+      .from('chamados')
+      .update({ status, atualizado_em: new Date().toISOString() })
+      .eq('id', id);
+    if (error) throw error;
     toast(`Status → ${status}`, 'ok');
     closeModal('modal-detalhe');
   } catch(e) { toast('Erro ao atualizar: '+e.message, 'err'); }
@@ -1209,9 +1245,12 @@ function mudarStatus(id) { verDetalhe(id); }
 async function addObservacao(id) {
   const obs = prompt('Digite a observação / resposta para este chamado:');
   if (!obs) return;
-  if (!db) return toast('Sem conexão com banco', 'err');
   try {
-    await db.doc('chamados/'+id).update({ observacao: obs, atualizadoEm: Date.now() });
+    const { error } = await supa
+      .from('chamados')
+      .update({ observacao: obs, atualizado_em: new Date().toISOString() })
+      .eq('id', id);
+    if (error) throw error;
     toast('Observação salva!', 'ok');
     closeModal('modal-detalhe');
   } catch(e) { toast('Erro: '+e.message, 'err'); }
@@ -1221,9 +1260,9 @@ async function deleteChamado(id) {
   const c = allChamados.find(x => x.id === id);
   const ok = confirm(`Excluir o chamado "${c?.assunto || id}"?\n\nEsta ação não pode ser desfeita.`);
   if (!ok) return;
-  if (!db) return toast('Sem conexão com banco', 'err');
   try {
-    await db.doc('chamados/'+id).delete();
+    const { error } = await supa.from('chamados').delete().eq('id', id);
+    if (error) throw error;
     toast('Chamado excluído', 'info');
     closeModal('modal-detalhe');
   } catch(e) { toast('Erro: '+e.message, 'err'); }
@@ -1234,27 +1273,27 @@ async function deleteChamado(id) {
 // ──────────────────────────────────────────────
 async function submitChamado(ev) {
   ev.preventDefault();
-  if (!db) { toast('Banco offline – tente novamente em instantes', 'err'); return; }
   const btn = document.getElementById('btn-submit-novo');
   btn.disabled = true; btn.textContent = 'Enviando…';
 
-  const id = genId();
+  const now = new Date().toISOString();
   const data = {
-    nome:       document.getElementById('n-nome').value.trim(),
-    contato:    document.getElementById('n-contato').value.trim(),
-    loja:       document.getElementById('n-loja').value,
-    categoria:  document.getElementById('n-categoria').value,
-    prioridade: document.getElementById('n-prioridade').value,
-    equipamento:document.getElementById('n-equip').value.trim(),
-    assunto:    document.getElementById('n-assunto').value.trim(),
-    descricao:  document.getElementById('n-descricao').value.trim(),
-    status:     'Aberto',
-    criadoEm:   Date.now(),
-    atualizadoEm: Date.now(),
+    nome:        document.getElementById('n-nome').value.trim(),
+    contato:     document.getElementById('n-contato').value.trim(),
+    loja:        document.getElementById('n-loja').value,
+    categoria:   document.getElementById('n-categoria').value,
+    prioridade:  document.getElementById('n-prioridade').value,
+    equipamento: document.getElementById('n-equip').value.trim(),
+    assunto:     document.getElementById('n-assunto').value.trim(),
+    descricao:   document.getElementById('n-descricao').value.trim(),
+    status:      'Aberto',
+    criado_em:   now,
+    atualizado_em: now,
   };
 
   try {
-    await db.doc('chamados/'+id).set(data);
+    const { error } = await supa.from('chamados').insert(data);
+    if (error) throw error;
     toast('Chamado aberto com sucesso! 🎉', 'ok');
     document.getElementById('form-novo').reset();
     navigate('chamados');
@@ -1354,29 +1393,30 @@ function editEquip(id) { openModalEquip(id); }
 
 async function submitEquip(ev) {
   ev.preventDefault();
-  if (!db) { toast('Banco offline', 'err'); return; }
   const btn = document.getElementById('btn-submit-equip');
   btn.disabled = true; btn.textContent = 'Salvando…';
   const existId = document.getElementById('e-id').value;
+  const now = new Date().toISOString();
   const data = {
-    serie:  document.getElementById('e-serie').value.trim(),
-    tipo:   document.getElementById('e-tipo').value,
-    nome:   document.getElementById('e-nome').value.trim(),
-    marca:  document.getElementById('e-marca').value.trim(),
-    modelo: document.getElementById('e-modelo').value.trim(),
-    loja:   document.getElementById('e-loja').value,
-    status: document.getElementById('e-status').value,
-    obs:    document.getElementById('e-obs').value.trim(),
-    atualizadoEm: Date.now(),
+    serie:        document.getElementById('e-serie').value.trim(),
+    tipo:         document.getElementById('e-tipo').value,
+    nome:         document.getElementById('e-nome').value.trim(),
+    marca:        document.getElementById('e-marca').value.trim(),
+    modelo:       document.getElementById('e-modelo').value.trim(),
+    loja:         document.getElementById('e-loja').value,
+    status:       document.getElementById('e-status').value,
+    obs:          document.getElementById('e-obs').value.trim(),
+    atualizado_em: now,
   };
   try {
     if (existId) {
-      await db.doc('equipamentos/'+existId).update(data);
+      const { error } = await supa.from('equipamentos').update(data).eq('id', existId);
+      if (error) throw error;
       toast('Equipamento atualizado!', 'ok');
     } else {
-      data.criadoEm = Date.now();
-      const id = 'e'+genId();
-      await db.doc('equipamentos/'+id).set(data);
+      data.criado_em = now;
+      const { error } = await supa.from('equipamentos').insert(data);
+      if (error) throw error;
       toast('Equipamento cadastrado!', 'ok');
     }
     closeModal('modal-equip');
@@ -1387,9 +1427,11 @@ async function submitEquip(ev) {
 async function deleteEquip(id) {
   const e = allEquipamentos.find(x=>x.id===id);
   if (!confirm(`Remover "${e?.nome||id}" do inventário?`)) return;
-  if (!db) return toast('Banco offline','err');
-  try { await db.doc('equipamentos/'+id).delete(); toast('Equipamento removido','info'); }
-  catch(e) { toast('Erro: '+e.message,'err'); }
+  try {
+    const { error } = await supa.from('equipamentos').delete().eq('id', id);
+    if (error) throw error;
+    toast('Equipamento removido','info');
+  } catch(e) { toast('Erro: '+e.message,'err'); }
 }
 
 // ──────────────────────────────────────────────
