@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Suporte TI – Mega Feirão dos Calçados</title>
+  <meta name="description" content="Sistema de chamados de TI – Mega Feirão dos Calçados">
+
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     TELA DE LOGIN
+     ════════════════════════════════════════ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+
+    <div class="login-logo">
+      <div class="brand">🖥 Suporte TI</div>
+      <div class="sub">Mega Feirão dos Calçados</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="login-tabs">
+      <button class="login-tab active" id="tab-login"    onclick="showLoginTab('login')">Entrar</button>
+      <button class="login-tab"        id="tab-register" onclick="showLoginTab('register')">Cadastrar</button>
+    </div>
+
+    <!-- Form: Entrar -->
+    <div id="form-login" style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input class="form-control" type="email" id="l-email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input class="form-control" type="password" id="l-senha" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div class="login-err" id="l-err"></div>
+      <button class="btn btn-primary" id="l-btn" onclick="doLogin()" style="width:100%;justify-content:center;padding:10px">
+        Entrar
+      </button>
+    </div>
+
+    <!-- Form: Cadastrar -->
+    <div id="form-register" style="display:none;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Nome / Apelido *</label>
+        <input class="form-control" type="text" id="r-nome" placeholder="Como quer ser chamado?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-mail *</label>
+        <input class="form-control" type="email" id="r-email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha * (mín. 6 caracteres)</label>
+        <input class="form-control" type="password" id="r-senha" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="login-err" id="r-err"></div>
+      <button class="btn btn-primary" id="r-btn" onclick="doRegister()" style="width:100%;justify-content:center;padding:10px">
+        Criar conta
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     APLICAÇÃO PRINCIPAL
+     ════════════════════════════════════════ -->
+<div class="app" id="app-root" style="display:none">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">🖥 Suporte TI</div>
+      <div class="sub">Mega Feirão dos Calçados</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Principal</div>
+      <button class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2V2zm0 7h5v5H2V9zm7-7h5v5H9V2zm0 7h5v5H9V9z"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-page="chamados" onclick="navigate('chamados')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12v10H2V2zm1 1v8h10V3H3zm1 2h8v1H4V5zm0 2h6v1H4V7z"/></svg>
+        Chamados
+        <span class="nav-badge" id="badge-abertos" style="display:none">0</span>
+      </button>
+      <button class="nav-item" data-page="novo" onclick="navigate('novo')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2zm.5 3.5h-1V7.5H5.5v1H7.5V10.5h1V8.5H10.5v-1H8.5V5.5z"/></svg>
+        Novo Chamado
+      </button>
+    </div>
+
+    <!-- Gestão: somente admin -->
+    <div class="nav-section" id="nav-admin-section" style="display:none">
+      <div class="nav-label">Gestão (Admin)</div>
+      <button class="nav-item" data-page="equipamentos" onclick="navigate('equipamentos')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v8H1V3zm1 1v6h12V4H2zm2 1h8v1H4V5zm0 2h5v1H4V7zm8 5v1H4v-1h8z"/></svg>
+        Equipamentos
+      </button>
+      <button class="nav-item" data-page="relatorios" onclick="navigate('relatorios')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 2h10v12H3V2zm1 1v10h8V3H4zm1 2h6v1H5V5zm0 2h6v1H5V7zm0 2h4v1H5V9z"/></svg>
+        Relatórios
+      </button>
+      <button class="nav-item" data-page="usuarios" onclick="navigate('usuarios')">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a3 3 0 1 1 0 6A3 3 0 0 1 8 1zm0 1a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM3 11c0-2.2 2.24-4 5-4s5 1.8 5 4v1H3v-1z"/></svg>
+        Usuários
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 1v12A6 6 0 0 1 8 2z"/></svg>
+        Alternar tema
+      </button>
+    </div>
+  </nav>
+
+  <!-- Overlay mobile -->
+  <div id="nav-overlay" onclick="closeSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99"></div>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <rect y="3" width="20" height="2" rx="1"/>
+          <rect y="9" width="20" height="2" rx="1"/>
+          <rect y="15" width="20" height="2" rx="1"/>
+        </svg>
+      </button>
+      <span class="topbar-title" id="topbar-title">Dashboard</span>
+      <div class="loading-indicator" id="loading-indicator" style="display:none">
+        <div class="spinner"></div>
+      </div>
+      <div class="topbar-spacer"></div>
+
+      <!-- Menu do usuário -->
+      <div class="user-menu-wrap" id="user-menu-wrap">
+        <button class="user-menu-btn" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <span id="user-display-name">…</span>
+          <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </button>
+        <div class="user-dropdown" id="user-dropdown">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-name"  id="dd-name">…</div>
+            <div class="user-dropdown-email" id="dd-email"></div>
+            <div style="margin-top:4px"><span class="role-badge role-user" id="dd-role-badge">Usuário</span></div>
+          </div>
+          <button class="user-dropdown-item" onclick="openEditProfile()">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M11.5 2a1.5 1.5 0 0 1 2.121 2.121l-8 8a.5.5 0 0 1-.196.12l-3 1a.5.5 0 0 1-.632-.632l1-3a.5.5 0 0 1 .12-.196l8-8z"/></svg>
+            Editar nome
+          </button>
+          <button class="user-dropdown-item" onclick="openChangePassword()">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 1a4 4 0 0 1 4 4v1h1a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h1V5a4 4 0 0 1 4-4zm0 1a3 3 0 0 0-3 3v1h6V5a3 3 0 0 0-3-3zm0 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg>
+            Alterar senha
+          </button>
+          <div class="user-dropdown-sep"></div>
+          <button class="user-dropdown-item" onclick="doLogout()" style="color:var(--danger)">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M10 2v1H6a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4v1H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4zm1.5 3.5L14 8l-2.5 2.5-.707-.707L12.086 8.5H7v-1h5.086l-1.293-1.293.707-.707z"/></svg>
+            Sair
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ════════ DASHBOARD ════════ -->
+    <section class="page active" id="page-dashboard">
+      <div class="stats-row">
+        <div class="stat-card accent">
+          <div class="stat-label">Total Abertos</div>
+          <div class="stat-value" id="stat-abertos">–</div>
+          <div class="stat-sub">Aguardando atendimento</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">Em Andamento</div>
+          <div class="stat-value" id="stat-andamento">–</div>
+          <div class="stat-sub">Sendo tratados</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Urgentes</div>
+          <div class="stat-value" id="stat-urgentes">–</div>
+          <div class="stat-sub">Prioridade máxima</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Resolvidos (30d)</div>
+          <div class="stat-value" id="stat-fechados">–</div>
+          <div class="stat-sub">Nos últimos 30 dias</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" id="dash-grid">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div class="section-header">
+            <span class="section-title">Chamados Recentes</span>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('chamados')">Ver todos</button>
+          </div>
+          <div id="recentes-list"><div class="loading-row"><div class="spinner"></div> Carregando…</div></div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div class="section-header"><span class="section-title">Por Categoria</span></div>
+          <div id="cat-chart"></div>
+        </div>
+      </div>
+
+      <div class="info-banner">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0;margin-top:1px"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm-.5 3.5h1V9h-1V5.5zm0 4.5h1v1h-1v-1z"/></svg>
+        <div>Compartilhe este sistema com as lojas para que possam abrir chamados diretamente pela aba <strong>Novo Chamado</strong>.</div>
+      </div>
+    </section>
+
+    <!-- ════════ CHAMADOS ════════ -->
+    <section class="page" id="page-chamados">
+      <div class="section-header">
+        <span class="section-title">Chamados</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="exportCSV()">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 2h7l3 3v9H3V2zm6 0v3h3M5 7h6M5 9h6M5 11h4" stroke="currentColor" stroke-width="1" fill="none"/></svg>
+            CSV
+          </button>
+          <button class="btn btn-primary" onclick="navigate('novo')">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2zm.5 3.5h-1V7.5H5.5v1H7.5V10.5h1V8.5H10.5v-1H8.5V5.5z"/></svg>
+            Novo
+          </button>
+        </div>
+      </div>
+
+      <div class="filters-bar">
+        <input class="filter-input" type="search" id="f-busca" placeholder="Buscar por assunto, solicitante, loja…" oninput="renderChamadosTable(getSortedFiltered())">
+        <select class="filter-select" id="f-status" onchange="renderChamadosTable(getSortedFiltered())">
+          <option value="">Todos os status</option>
+          <option>Aberto</option><option>Em Andamento</option>
+          <option>Aguardando usuário</option><option>Resolvido</option>
+          <option>Fechado</option><option>Cancelado</option>
+        </select>
+        <select class="filter-select" id="f-prioridade" onchange="renderChamadosTable(getSortedFiltered())">
+          <option value="">Toda prioridade</option>
+          <option>Urgente</option><option>Alta</option><option>Média</option><option>Baixa</option>
+        </select>
+        <select class="filter-select" id="f-categoria" onchange="renderChamadosTable(getSortedFiltered())">
+          <option value="">Toda categoria</option>
+          <option>Hardware</option><option>Software</option><option>Rede / Internet</option>
+          <option>Impressora</option><option>PDV / Caixa</option><option>Câmera / CFTV</option>
+          <option>Acesso / Senha</option><option>E-mail / Comunicação</option><option>Outro</option>
+        </select>
+        <select class="filter-select" id="f-loja" onchange="renderChamadosTable(getSortedFiltered())">
+          <option value="">Toda loja</option>
+        </select>
+        <select class="filter-select" id="f-periodo" onchange="renderChamadosTable(getSortedFiltered())">
+          <option value="0">Todo período</option>
+          <option value="7">Últimos 7 dias</option>
+          <option value="30">Últimos 30 dias</option>
+          <option value="90">Últimos 90 dias</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="sortable" onclick="sortBy('id')">#</th>
+              <th class="sortable" onclick="sortBy('assunto')">Assunto / Categoria</th>
+              <th class="sortable" id="th-solicitante" onclick="sortBy('nome')">Solicitante</th>
+              <th class="sortable" onclick="sortBy('loja')">Loja</th>
+              <th class="sortable" onclick="sortBy('prioridade')">Prioridade</th>
+              <th class="sortable" onclick="sortBy('status')">Status</th>
+              <th class="sortable" onclick="sortBy('criado_em')">Aberto em</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="chamados-table-body">
+            <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--fg3)"><div class="spinner" style="margin:0 auto"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ════════ NOVO CHAMADO ════════ -->
+    <section class="page" id="page-novo">
+      <div class="section-header">
+        <span class="section-title">Abrir Novo Chamado</span>
+      </div>
+
+      <form id="form-chamado" onsubmit="submitChamado(event)" style="display:flex;flex-direction:column;gap:16px;max-width:720px">
+        <div class="field-row">
+          <div class="field">
+            <label for="c-nome">Nome / Solicitante *</label>
+            <input id="c-nome" type="text" placeholder="Seu nome" required>
+          </div>
+          <div class="field">
+            <label for="c-contato">Contato (telefone/ramal)</label>
+            <input id="c-contato" type="text" placeholder="(65) 9 ####-####">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="c-loja">Loja / Setor *</label>
+            <select id="c-loja" required>
+              <option value="">Selecione…</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="c-categoria">Categoria *</label>
+            <select id="c-categoria" required>
+              <option value="">Selecione…</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="c-prioridade">Prioridade *</label>
+            <select id="c-prioridade" required>
+              <option value="Média" selected>Média</option>
+              <option value="Baixa">Baixa</option>
+              <option value="Alta">Alta</option>
+              <option value="Urgente">Urgente</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="c-equipamento">Equipamento envolvido</label>
+            <select id="c-equipamento">
+              <option value="">Nenhum / Não sei</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="c-assunto">Assunto *</label>
+          <input id="c-assunto" type="text" placeholder="Resumo do problema em uma linha" required maxlength="120">
+        </div>
+
+        <div class="field">
+          <label for="c-descricao">Descrição detalhada</label>
+          <textarea id="c-descricao" rows="5" placeholder="Descreva o problema com o máximo de detalhes: o que aconteceu, quando começou, quais ações já foram tentadas…"></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px">
+          <button type="submit" class="btn btn-primary" id="btn-submit-chamado">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M13.5 2L2 8.5l4 1.5 1.5 4L13.5 2z"/></svg>
+            Abrir Chamado
+          </button>
+          <button type="reset" class="btn btn-ghost">Limpar</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ════════ EQUIPAMENTOS (admin) ════════ -->
+    <section class="page" id="page-equipamentos">
+      <div class="section-header">
+        <span class="section-title">Inventário de Equipamentos</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:12px;color:var(--fg3)" id="equip-count"></span>
+          <button class="btn btn-primary" onclick="openNovoEquip()">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2zm.5 3.5h-1V7.5H5.5v1H7.5V10.5h1V8.5H10.5v-1H8.5V5.5z"/></svg>
+            Novo
+          </button>
+        </div>
+      </div>
+
+      <div class="filters-bar">
+        <input class="filter-input" type="search" id="ef-busca" placeholder="Buscar por nome, série, marca…" oninput="renderEquipamentos()">
+        <select class="filter-select" id="ef-loja" onchange="renderEquipamentos()">
+          <option value="">Toda loja</option>
+        </select>
+        <select class="filter-select" id="ef-tipo" onchange="renderEquipamentos()">
+          <option value="">Todos os tipos</option>
+        </select>
+        <select class="filter-select" id="ef-status" onchange="renderEquipamentos()">
+          <option value="">Todos os status</option>
+          <option>Em uso</option><option>Disponível</option>
+          <option>Em manutenção</option><option>Descartado</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Série / Patrimônio</th>
+              <th>Nome / Tipo</th>
+              <th>Marca / Modelo</th>
+              <th>Loja</th>
+              <th>Responsável</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="equip-table-body">
+            <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--fg3)"><div class="spinner" style="margin:0 auto"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ════════ RELATÓRIOS (admin) ════════ -->
+    <section class="page" id="page-relatorios">
+      <div class="section-header">
+        <span class="section-title">Relatórios</span>
+        <div style="display:flex;gap:8px">
+          <select class="filter-select" id="rel-periodo" onchange="renderRelatorios()">
+            <option value="0">Todo período</option>
+            <option value="7">Últimos 7 dias</option>
+            <option value="30">Últimos 30 dias</option>
+            <option value="90">Últimos 90 dias</option>
+          </select>
+          <select class="filter-select" id="rel-filtro-loja" onchange="renderRelatorios()">
+            <option value="">Todas as lojas</option>
+          </select>
+          <button class="btn btn-ghost" onclick="exportRelCSV()">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M9 2v5h4l-5 5-5-5h4V2h2zm-7 11h12v1H2v-1z"/></svg>
+            CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="stats-row">
+        <div class="stat-card accent">
+          <div class="stat-label">Total no período</div>
+          <div class="stat-value" id="rel-total">–</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Taxa de resolução</div>
+          <div class="stat-value" id="rel-taxa">–</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">Tempo médio resolução</div>
+          <div class="stat-value" id="rel-tempo">–</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Urgentes resolvidos</div>
+          <div class="stat-value" id="rel-urgentes-resolvidos">–</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" id="dash-grid">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+          <div class="section-header" style="margin-bottom:12px"><span class="section-title">Por Categoria</span>
+            <span style="font-size:12px;color:var(--fg3)">Top: <strong id="rel-cat">–</strong></span>
+          </div>
+          <div id="rel-cat-bars"></div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+          <div class="section-header" style="margin-bottom:12px"><span class="section-title">Por Loja</span>
+            <span style="font-size:12px;color:var(--fg3)">Top: <strong id="rel-loja">–</strong></span>
+          </div>
+          <div id="rel-loja-bars"></div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+          <div class="section-header" style="margin-bottom:12px"><span class="section-title">Por Prioridade</span></div>
+          <div id="rel-prio-bars"></div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+          <div class="section-header" style="margin-bottom:12px"><span class="section-title">Por Status</span></div>
+          <div id="rel-status-bars"></div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+        <div class="section-header" style="margin-bottom:12px"><span class="section-title">Tendência Mensal</span></div>
+        <div id="rel-mes-bars"></div>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+        <div class="section-header" style="margin-bottom:12px">
+          <span class="section-title">Recorrências por Categoria + Loja</span>
+        </div>
+        <div id="rel-recorrentes"></div>
+      </div>
+    </section>
+
+    <!-- ════════ USUÁRIOS (admin) ════════ -->
+    <section class="page" id="page-usuarios">
+      <div class="section-header">
+        <span class="section-title">Gerenciar Usuários</span>
+      </div>
+      <div class="info-banner" style="margin-bottom:0">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0;margin-top:1px"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm-.5 3.5h1V9h-1V5.5zm0 4.5h1v1h-1v-1z"/></svg>
+        <div>Apenas admins podem ver e alterar os perfis dos outros usuários. Um usuário só se torna admin quando você promove aqui.</div>
+      </div>
+      <div id="usuarios-list"><div class="loading-row"><div class="spinner"></div> Carregando…</div></div>
+    </section>
+
+  </div><!-- /main -->
+</div><!-- /app-root -->
+
+<!-- ════════════════════════════════════════
+     MODAIS
+     ════════════════════════════════════════ -->
+
+<!-- Modal: Detalhe do chamado -->
+<div class="modal-overlay" id="modal-detalhe">
+  <div class="modal" style="max-width:660px">
+    <div class="modal-header">
+      <span class="modal-title" id="md-titulo">Chamado</span>
+      <button class="modal-close" onclick="closeModal('modal-detalhe')">✕ Fechar</button>
+    </div>
+    <div class="modal-body" id="md-body"></div>
+  </div>
+</div>
+
+<!-- Modal: Novo / Editar Equipamento -->
+<div class="modal-overlay" id="modal-equip">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="me-titulo">Novo Equipamento</span>
+      <button class="modal-close" onclick="closeModal('modal-equip')">✕ Fechar</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-equip" onsubmit="submitEquip(event)" style="display:flex;flex-direction:column;gap:14px">
+        <input type="hidden" id="e-id">
+        <div class="field-row">
+          <div class="field">
+            <label for="e-serie">Nº de Série / Patrimônio</label>
+            <input id="e-serie" type="text" placeholder="Ex: NB-0042">
+          </div>
+          <div class="field">
+            <label for="e-tipo">Tipo *</label>
+            <select id="e-tipo" required>
+              <option value="">Selecione…</option>
+              <option>Computador Desktop</option><option>Notebook</option>
+              <option>Impressora</option><option>Monitor</option>
+              <option>PDV / Caixa</option><option>Switch / Roteador</option>
+              <option>Câmera / CFTV</option><option>Nobreak / UPS</option>
+              <option>Smartphone / Tablet</option><option>Outro</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="e-nome">Nome / Descrição *</label>
+            <input id="e-nome" type="text" placeholder="Ex: Computador Caixa 2" required>
+          </div>
+          <div class="field">
+            <label for="e-loja">Loja *</label>
+            <select id="e-loja" required>
+              <option value="">Selecione…</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="e-marca">Marca</label>
+            <input id="e-marca" type="text" placeholder="Dell, HP, Positivo…">
+          </div>
+          <div class="field">
+            <label for="e-modelo">Modelo</label>
+            <input id="e-modelo" type="text" placeholder="OptiPlex 3080…">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="e-responsavel">Responsável / Usuário</label>
+            <input id="e-responsavel" type="text" placeholder="Nome de quem usa o equipamento">
+          </div>
+          <div class="field">
+            <label for="e-responsavel-email">E-mail do responsável</label>
+            <input id="e-responsavel-email" type="email" placeholder="usuario@empresa.com">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="e-status">Status *</label>
+            <select id="e-status" required>
+              <option value="Em uso" selected>Em uso</option>
+              <option value="Disponível">Disponível</option>
+              <option value="Em manutenção">Em manutenção</option>
+              <option value="Descartado">Descartado</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="e-obs">Observações</label>
+            <input id="e-obs" type="text" placeholder="Notas relevantes…">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modal-equip')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-equip">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Editar perfil -->
+<div class="modal-overlay" id="modal-perfil">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <span class="modal-title">Editar perfil</span>
+      <button class="modal-close" onclick="closeModal('modal-perfil')">✕</button>
+    </div>
+    <div class="modal-body" style="gap:16px">
+      <div class="form-group">
+        <label class="form-label">Nome / Apelido</label>
+        <input class="form-control" type="text" id="perfil-nome" placeholder="Como quer ser chamado?">
+      </div>
+      <button class="btn btn-primary" id="btn-save-profile" onclick="saveProfile()" style="width:100%;justify-content:center">
+        Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Alterar senha -->
+<div class="modal-overlay" id="modal-senha">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <span class="modal-title">Alterar senha</span>
+      <button class="modal-close" onclick="closeModal('modal-senha')">✕</button>
+    </div>
+    <div class="modal-body" style="gap:16px">
+      <div class="form-group">
+        <label class="form-label">Nova senha (mín. 6 caracteres)</label>
+        <input class="form-control" type="password" id="senha-nova" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmar nova senha</label>
+        <input class="form-control" type="password" id="senha-confirm" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary" id="btn-save-senha" onclick="savePassword()" style="width:100%;justify-content:center">
+        Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     TOAST CONTAINER
+     ════════════════════════════════════════ -->
+<div class="toast-container" id="toasts"></div>
+
+<!-- ════════════════════════════════════════
+     SCRIPTS
+     ════════════════════════════════════════ -->
+<!-- Supabase JS v2 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+
+<!-- Módulos da aplicação (ordem importa) -->
+<script src="js/config.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/chamados.js"></script>
+<script src="js/equipamentos.js"></script>
+<script src="js/relatorios.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
