@@ -6,6 +6,15 @@
   <title>Suporte TI – Mega Feirão dos Calçados</title>
   <meta name="description" content="Sistema de chamados de TI – Mega Feirão dos Calçados">
 
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Suporte Mega">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
   <!-- Fontes -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -391,6 +400,7 @@
           <thead>
             <tr>
               <th>Série / Patrimônio</th>
+              <th>Nome / Tipo</th>
               <th>Marca / Modelo</th>
               <th>Loja</th>
               <th>Responsável</th>
@@ -656,6 +666,17 @@
 <script src="js/equipamentos.js"></script>
 <script src="js/relatorios.js"></script>
 <script src="js/app.js"></script>
+
+<!-- Registro do Service Worker (PWA) -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('SW registrado:', reg.scope))
+        .catch(err => console.warn('SW erro:', err));
+    });
+  }
+</script>
 
 </body>
 </html>
