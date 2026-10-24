@@ -68,7 +68,10 @@ function renderEquipamentos() {
   el.innerHTML = list.map(e => `
     <tr>
       <td><span style="font-family:var(--mono);font-size:11px;color:var(--fg3)">${esc(e.serie || '–')}</span></td>
-      <td>${esc(e.marca || '–')} ${esc(e.modelo || '')}</td>
+      <td>
+        <div style="font-weight:500">${esc(e.marca || '–')} ${esc(e.modelo || '')}</div>
+        <div style="font-size:11px;color:var(--fg3)">${esc(e.tipo || '')}${e.tipo && e.nome ? ' · ' : ''}${esc(e.nome || '')}</div>
+      </td>
       <td>${esc(e.loja)}</td>
       <td>
         ${e.responsavel
